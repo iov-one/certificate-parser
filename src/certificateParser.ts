@@ -16,6 +16,7 @@ import webCertificateValidatorV1 from "./v1/validators/webCertificate";
 import forge from "node-forge";
 
 export class CertificateParser {
+  private rawCertificate: string;
   // can be 1, 2, ...
   private version: 1;
   private type: CertificateTypes | null = null;
@@ -42,6 +43,7 @@ export class CertificateParser {
 
     this.type = certificateTypesMap[certificateType];
     this.version = certificateVersion;
+    this.rawCertificate = certificate;
     // parse based on version
     switch (this.version) {
       case 1:
@@ -90,6 +92,10 @@ export class CertificateParser {
         this.parsedCertificate.cert.certifier.public_key.slice(2, -1)
       ),
     });
+  }
+
+  public getRawCertificate(): string {
+    return this.rawCertificate;
   }
 
   public getType(): CertificateTypes {
