@@ -14,6 +14,9 @@ const webCertificateSchemaV1: JSONSchemaType<WebCertificateV1> = {
         version: {
           type: "number",
         },
+        expire_date: {
+          type: "string",
+        },
         certifier: {
           type: "object",
           properties: {
@@ -46,7 +49,14 @@ const webCertificateSchemaV1: JSONSchemaType<WebCertificateV1> = {
         },
       },
       additionalProperties: true,
-      required: ["type", "version", "certifier", "starname", "web"],
+      required: [
+        "type",
+        "version",
+        "expire_date",
+        "certifier",
+        "starname",
+        "web",
+      ],
     },
     signature: {
       type: "string",

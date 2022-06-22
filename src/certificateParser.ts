@@ -81,15 +81,11 @@ export class CertificateParser {
 
   public checkIntegrity(): boolean {
     return forge.pki.ed25519.verify({
-      message: JSON.stringify({
-        ...this.parsedCertificate.cert,
-      }),
+      message: JSON.stringify(this.parsedCertificate.cert),
       encoding: "utf8",
-      signature: forge.util.hexToBytes(
-        this.parsedCertificate.signature.slice(2, -1)
-      ),
+      signature: forge.util.hexToBytes(this.parsedCertificate.signature),
       publicKey: forge.util.hexToBytes(
-        this.parsedCertificate.cert.certifier.public_key.slice(2, -1)
+        this.parsedCertificate.cert.certifier.public_key
       ),
     });
   }
@@ -105,6 +101,10 @@ export class CertificateParser {
 
   public getVersion(): number {
     return this.version;
+  }
+
+  public getExpireDate(): Date {
+    return new Date(parseInt(this.parsedCertificate.cert.expire_date) * 1000);
   }
 
   public getCertificate(): CertificateV1 {

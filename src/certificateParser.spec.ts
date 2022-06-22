@@ -1,19 +1,23 @@
 import { CertificateParser } from "./certificateParser";
 import forge from "node-forge";
 import { ERRORS } from "./errors";
-import { WebCertificateV1 } from "./v1/types/webCertificateType";
+import {
+  CertWithWebEntityV1,
+  WebCertificateV1,
+} from "./v1/types/webCertificateType";
 
 // suppose we are a certifier
 const generateValidWebCertificate = (): WebCertificateV1 => {
   // certifier's private and pub key
   const { publicKey, privateKey } = forge.pki.ed25519.generateKeyPair();
-  const cert = {
+  const cert: CertWithWebEntityV1 = {
     // look for CertificateTypes
     type: "web",
     version: 1,
+    expire_date: "1655875716",
     certifier: {
       id: "Example",
-      public_key: `b'${publicKey.toString("hex")}'`,
+      public_key: publicKey.toString("hex"),
       url: "https://www.example.com/publickey",
     },
     custom: {
@@ -40,7 +44,7 @@ const generateValidWebCertificate = (): WebCertificateV1 => {
   });
   const certificate = {
     cert,
-    signature: `b'${signature.toString("hex")}'`,
+    signature: signature.toString("hex"),
   };
   // this is our final certificate
   return certificate;
@@ -72,6 +76,7 @@ describe("Certificate parser", () => {
       cert: {
         type: "web",
         version: 69,
+        expire_date: "1655875716",
       },
       signature: "signature",
     };
@@ -85,6 +90,7 @@ describe("Certificate parser", () => {
       cert: {
         type: "some-unknown-type",
         version: 1,
+        expire_date: "1655875716",
       },
       signature: "signature",
     };
@@ -93,6 +99,14 @@ describe("Certificate parser", () => {
     } catch (error) {
       expect((error as Error).message).toBe(ERRORS.INVALID_TYPE);
     }
+  });
+
+  it("can read expiry date of a certificate", () => {
+    const validWebCertificate = generateValidWebCertificate();
+    const parsedCertificate = new CertificateParser(
+      JSON.stringify(validWebCertificate)
+    );
+    expect(parsedCertificate.getExpireDate().getDate()).toBe(22);
   });
 
   it("can check integrity of a certificate", () => {

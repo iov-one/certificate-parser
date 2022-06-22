@@ -14,6 +14,9 @@ const twitterClaimCertificateV1: JSONSchemaType<TwitterClaimCertificateV1> = {
         version: {
           type: "number",
         },
+        expire_date: {
+          type: "string",
+        },
         certifier: {
           type: "object",
           properties: {
@@ -45,7 +48,14 @@ const twitterClaimCertificateV1: JSONSchemaType<TwitterClaimCertificateV1> = {
         },
       },
       additionalProperties: true,
-      required: ["certifier", "starname", "twitter"],
+      required: [
+        "type",
+        "version",
+        "expire_date",
+        "certifier",
+        "starname",
+        "twitter",
+      ],
     },
     signature: {
       type: "string",

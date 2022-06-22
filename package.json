@@ -1,7 +1,11 @@
 {
-  "name": "certificate-parser",
+  "name": "@iov/certificate-parser",
   "version": "1.0.0",
-  "author": "IOV SAS <admin@iov.one>",
+  "author": {
+    "email": "jatin@iov.one",
+    "name": "Jatin Sarda",
+    "url": "https://github.com/xpt1x"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -9,10 +13,13 @@
     "*.md",
     "!*.spec.*"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/iov-one/certificate-parser"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "rm -rf ./dist && tsc",
@@ -29,7 +36,6 @@
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
     "eslint": "^8.0.1",
-    "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-n": "^15.0.0",
     "eslint-plugin-promise": "^6.0.0",

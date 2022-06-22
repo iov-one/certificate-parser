@@ -14,6 +14,9 @@ const certificateSchemaV1: JSONSchemaType<CertificateV1> = {
         version: {
           type: "number",
         },
+        expire_date: {
+          type: "string",
+        },
         certifier: {
           type: "object",
           properties: {
@@ -38,7 +41,7 @@ const certificateSchemaV1: JSONSchemaType<CertificateV1> = {
         },
       },
       additionalProperties: true,
-      required: ["type", "version", "certifier", "starname"],
+      required: ["type", "version", "expire_date", "certifier", "starname"],
     },
     signature: {
       type: "string",

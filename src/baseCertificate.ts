@@ -14,9 +14,12 @@ export const baseCertificateSchema: JSONSchemaType<BaseCertificate> = {
         version: {
           type: "number",
         },
+        expire_date: {
+          type: "string",
+        },
       },
       additionalProperties: true,
-      required: ["type", "version"],
+      required: ["type", "version", "expire_date"],
     },
     signature: {
       type: "string",
