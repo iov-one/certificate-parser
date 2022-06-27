@@ -79,17 +79,6 @@ export class CertificateParser {
     throw new Error(ERRORS.INVALID_TWITTER_CLAIM_CERTIFICATE);
   }
 
-  public checkIntegrity(): boolean {
-    return forge.pki.ed25519.verify({
-      message: JSON.stringify(this.parsedCertificate.cert),
-      encoding: "utf8",
-      signature: forge.util.hexToBytes(this.parsedCertificate.signature),
-      publicKey: forge.util.hexToBytes(
-        this.parsedCertificate.cert.certifier.public_key
-      ),
-    });
-  }
-
   public getRawCertificate(): string {
     return this.rawCertificate;
   }
@@ -131,5 +120,20 @@ export class CertificateParser {
 
   public getCustomEntity(): any {
     return this.parsedCertificate.cert.custom;
+  }
+
+  public checkIntegrity(): boolean {
+    return forge.pki.ed25519.verify({
+      message: JSON.stringify(this.parsedCertificate.cert),
+      encoding: "utf8",
+      signature: forge.util.hexToBytes(this.parsedCertificate.signature),
+      publicKey: forge.util.hexToBytes(
+        this.parsedCertificate.cert.certifier.public_key
+      ),
+    });
+  }
+
+  public checkValidity(): boolean {
+    return this.getExpireDate() > new Date();
   }
 }
