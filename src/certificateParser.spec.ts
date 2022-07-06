@@ -1,18 +1,16 @@
-import { CertificateParser } from "./certificateParser";
+import { CertV1 } from "v1/types/cert";
+import { CertificateV1 } from "v1/types/certificateType";
+
 import forge from "node-forge";
-import { ERRORS } from "./errors";
-import {
-  CertWithWebEntityV1,
-  WebCertificateV1,
-} from "./v1/types/webCertificateType";
+import { CertificateParser } from "certificateParser";
+import { ERRORS } from "errors";
 
 // suppose we are a certifier
-const generateValidWebCertificate = (): WebCertificateV1 => {
+const generateValidWebCertificate = (): CertificateV1 => {
   // certifier's private and pub key
   const { publicKey, privateKey } = forge.pki.ed25519.generateKeyPair();
-  const cert: CertWithWebEntityV1 = {
-    // look for CertificateTypes
-    type: "web",
+  const cert: CertV1 = {
+    type: "web_service_binding",
     version: 1,
     expire_date: "1655875716",
     certifier: {
@@ -33,8 +31,10 @@ const generateValidWebCertificate = (): WebCertificateV1 => {
       address: "starxyz",
       starname: "*starname",
     },
-    web: {
-      host: "iov.one",
+    service: {
+      // look for service type
+      type: "web",
+      host: "something.com",
     },
   };
   const signature = forge.pki.ed25519.sign({
@@ -71,33 +71,29 @@ describe("Certificate parser", () => {
     }
   });
 
-  it("throws on invalid version, type", () => {
-    const certificateWithInvalidVersion = {
+  it("throws on invalid service entity", () => {
+    const { cert, signature } = generateValidWebCertificate();
+    const { service, ...otherCertProps } = cert;
+    // lets create a new invalid certificate from it
+    // we will modify service object to exclude host entity from it
+    const certificateWithInvalidServiceEntity: CertificateV1 = {
       cert: {
-        type: "web",
-        version: 69,
-        expire_date: "1655875716",
+        service: {
+          type: "web",
+        },
+        ...otherCertProps,
       },
-      signature: "signature",
+      signature,
     };
+
     try {
-      new CertificateParser(JSON.stringify(certificateWithInvalidVersion));
+      new CertificateParser(
+        JSON.stringify(certificateWithInvalidServiceEntity)
+      );
     } catch (error) {
-      expect((error as Error).message).toBe(ERRORS.INVALID_VERSION);
-    }
-    // lets test with a invalid type
-    const certificateWithInvalidType = {
-      cert: {
-        type: "some-unknown-type",
-        version: 1,
-        expire_date: "1655875716",
-      },
-      signature: "signature",
-    };
-    try {
-      new CertificateParser(JSON.stringify(certificateWithInvalidType));
-    } catch (error) {
-      expect((error as Error).message).toBe(ERRORS.INVALID_TYPE);
+      expect((error as Error).message).toBe(
+        `Invalid ${service.type} service entity`
+      );
     }
   });
 
@@ -121,7 +117,7 @@ describe("Certificate parser", () => {
     const { starname, ...otherProps } = cert;
 
     // this is a modified invalid certificate
-    const modifiedCertificate: WebCertificateV1 = {
+    const modifiedCertificate: CertificateV1 = {
       cert: {
         ...otherProps,
         starname: {
@@ -161,13 +157,20 @@ describe("Certificate parser", () => {
   it("doesn't fail on providing additonal fields", () => {
     const validWebCertificate = generateValidWebCertificate();
     const { cert, signature } = validWebCertificate;
+    const { service, ...otherCertProps } = cert;
 
     const modifiedCertificate = {
       cert: {
-        ...cert,
         additional: {
           hello: "world",
         },
+        service: {
+          additionalServiceFields: {
+            foo: "bar",
+          },
+          ...service,
+        },
+        ...otherCertProps,
       },
       signature,
     };

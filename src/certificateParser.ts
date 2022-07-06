@@ -1,27 +1,22 @@
-import baseCertificateValidator from "./baseCertificate";
-import { certificateTypesMap } from "./certificateTypesMap";
-import { ERRORS } from "./errors";
-import { BaseCertificate } from "./types/baseCertificate";
-import { CertificateTypes } from "./types/certificateTypes";
-import { CertificateV1 } from "./v1/types/certificateType";
-import { CertifierV1 } from "./v1/types/certifier";
-import { StarnameInfoV1 } from "./v1/types/starnameInfo";
-import { TwitterClaimCertificateV1 } from "./v1/types/twitterClaimCertificateType";
-import { TwitterClaimInfoV1 } from "./v1/types/twitterClaimInfo";
-import { WebCertificateV1 } from "./v1/types/webCertificateType";
-import { WebsiteInfoV1 } from "./v1/types/websiteInfo";
-import certificateValidatorV1 from "./v1/validators/certificate";
-import twitterClaimCertificateValidatorV1 from "./v1/validators/twitterClaimCertificate";
-import webCertificateValidatorV1 from "./v1/validators/webCertificate";
+import baseCertificateValidator from "baseCertificate";
+import { ERRORS } from "errors";
+import { SupportedCertificateTypes } from "types/baseCert";
+import { BaseCertificate } from "types/baseCertificate";
+import { CertificateV1 } from "v1/types/certificateType";
+import { CertifierV1 } from "v1/types/certifier";
+import { isInstagramService } from "v1/types/instagramClaim";
+import { ServiceV1, SupportedServiceTypes } from "v1/types/service";
+import { StarnameInfoV1 } from "v1/types/starnameInfo";
+import { isTwitterService, TwitterClaimInfoV1 } from "v1/types/twitterClaim";
+import { isWebService, WebsiteInfoV1 } from "v1/types/webClaim";
+import certificateValidatorV1 from "v1/validators/certificate";
+
 import forge from "node-forge";
 
 export class CertificateParser {
   private rawCertificate: string;
-  // can be 1, 2, ...
-  private version: 1;
-  private type: CertificateTypes | null = null;
-  // can be of multiple versions, must enforce typeguards
-  // to know correct type
+  private service: ServiceV1;
+
   private parsedCertificate: CertificateV1;
   /**
    *
@@ -33,32 +28,32 @@ export class CertificateParser {
     const valid = baseCertificateValidator(parsed);
     if (!valid) throw new Error(ERRORS.UNSUPPORTED_STRUCTURE);
 
-    const certificateVersion = parsed.cert.version;
-    // TODO: check here for multiple versions (in future)
-    if (certificateVersion !== 1) throw new Error(ERRORS.INVALID_VERSION);
-
-    const certificateType = parsed.cert.type;
-    if (!(certificateType in certificateTypesMap))
-      throw new Error(ERRORS.INVALID_TYPE);
-
-    this.type = certificateTypesMap[certificateType];
-    this.version = certificateVersion;
     this.rawCertificate = certificate;
     // parse based on version
-    switch (this.version) {
+    switch (parsed.cert.version) {
       case 1:
         this.parsedCertificate = this.certificateParserV1(parsed);
     }
-    // check certificate based on type else throw
-    switch (this.type) {
-      case CertificateTypes.Web:
-        if (!webCertificateValidatorV1(this.parsedCertificate))
-          throw new Error(ERRORS.INVALID_WEB_CERTIFICATE);
-        break;
-      case CertificateTypes.TwitterClaim:
-        if (!twitterClaimCertificateValidatorV1(this.parsedCertificate))
-          throw new Error(ERRORS.INVALID_TWITTER_CLAIM_CERTIFICATE);
-        break;
+    // set service now
+    this.service = this.parsedCertificate.cert.service;
+    // check certificate based on service else throw
+    // because its really crucial for other methods
+    if (!this.checkValidCertificateService(this.parsedCertificate)) {
+      throw new Error(`Invalid ${this.service.type} service entity`);
+    }
+  }
+
+  private checkValidCertificateService(certificate: CertificateV1): boolean {
+    const {
+      cert: { service },
+    } = certificate;
+    switch (service.type) {
+      case "web":
+        return isWebService(service);
+      case "twitter":
+        return isTwitterService(service);
+      case "instagram":
+        return isInstagramService(service);
     }
   }
 
@@ -67,29 +62,20 @@ export class CertificateParser {
     throw new Error(ERRORS.INVALID_V1_CERTIFICATE);
   }
 
-  private webParserV1(): WebCertificateV1 {
-    if (webCertificateValidatorV1(this.parsedCertificate))
-      return this.parsedCertificate;
-    throw new Error(ERRORS.INVALID_WEB_CERTIFICATE);
-  }
-
-  private twitterClaimParser(): TwitterClaimCertificateV1 {
-    if (twitterClaimCertificateValidatorV1(this.parsedCertificate))
-      return this.parsedCertificate;
-    throw new Error(ERRORS.INVALID_TWITTER_CLAIM_CERTIFICATE);
-  }
-
   public getRawCertificate(): string {
     return this.rawCertificate;
   }
 
-  public getType(): CertificateTypes {
-    if (this.type === null) throw new Error(ERRORS.IMPROPER_INIT);
-    return this.type;
+  public getServiceType(): SupportedServiceTypes {
+    return this.service.type;
+  }
+
+  public getCertificateType(): SupportedCertificateTypes {
+    return this.parsedCertificate.cert.type;
   }
 
   public getVersion(): number {
-    return this.version;
+    return this.parsedCertificate.cert.version;
   }
 
   public getExpireDate(): Date {
@@ -109,13 +95,17 @@ export class CertificateParser {
   }
 
   public getTwitterClaimInfo(): TwitterClaimInfoV1 | null {
-    if (this.getType() !== CertificateTypes.TwitterClaim) return null;
-    return this.twitterClaimParser().cert.twitter;
+    if (isTwitterService(this.service)) {
+      return this.service;
+    }
+    return null;
   }
 
   public getWebsiteInfo(): WebsiteInfoV1 | null {
-    if (this.getType() !== CertificateTypes.Web) return null;
-    return this.webParserV1().cert.web;
+    if (isWebService(this.service)) {
+      return this.service;
+    }
+    return null;
   }
 
   public getCustomEntity(): any {

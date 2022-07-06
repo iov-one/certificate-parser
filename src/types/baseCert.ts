@@ -1,5 +1,8 @@
+export type SupportedCertificateTypes = "web_service_binding";
+export type SupportedVersions = 1;
+
 export interface BaseCert {
-  type: string;
-  version: number;
+  type: SupportedCertificateTypes;
+  version: SupportedVersions;
   expire_date: string;
 }
