@@ -1,4 +1,4 @@
-import { BaseCertificate } from "types/baseCertificate";
+import { BaseCertificate } from "../../types/baseCertificate";
 import { CertV1 } from "./cert";
 
 export interface CertificateV1 extends BaseCertificate {

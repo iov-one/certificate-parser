@@ -1,17 +1,16 @@
-import baseCertificateValidator from "baseCertificate";
-import { ERRORS } from "errors";
-import { SupportedCertificateTypes } from "types/baseCert";
-import { BaseCertificate } from "types/baseCertificate";
-import { CertificateV1 } from "v1/types/certificateType";
-import { CertifierV1 } from "v1/types/certifier";
-import { isInstagramService } from "v1/types/instagramClaim";
-import { ServiceV1, SupportedServiceTypes } from "v1/types/service";
-import { StarnameInfoV1 } from "v1/types/starnameInfo";
-import { isTwitterService, TwitterClaimInfoV1 } from "v1/types/twitterClaim";
-import { isWebService, WebsiteInfoV1 } from "v1/types/webClaim";
-import certificateValidatorV1 from "v1/validators/certificate";
-
 import forge from "node-forge";
+import baseCertificateValidator from "./baseCertificate";
+import { ERRORS } from "./errors";
+import { SupportedCertificateTypes } from "./types/baseCert";
+import { BaseCertificate } from "./types/baseCertificate";
+import { CertificateV1 } from "./v1/types/certificateType";
+import { CertifierV1 } from "./v1/types/certifier";
+import { isInstagramService } from "./v1/types/instagramClaim";
+import { ServiceV1, SupportedServiceTypes } from "./v1/types/service";
+import { StarnameInfoV1 } from "./v1/types/starnameInfo";
+import { isTwitterService, TwitterClaimInfoV1 } from "./v1/types/twitterClaim";
+import { isWebService, WebsiteInfoV1 } from "./v1/types/webClaim";
+import certificateValidatorV1 from "./v1/validators/certificate";
 
 export class CertificateParser {
   private rawCertificate: string;

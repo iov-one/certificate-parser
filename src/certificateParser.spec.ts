@@ -1,9 +1,8 @@
-import { CertV1 } from "v1/types/cert";
-import { CertificateV1 } from "v1/types/certificateType";
-
 import forge from "node-forge";
-import { CertificateParser } from "certificateParser";
-import { ERRORS } from "errors";
+import { CertificateParser } from "./certificateParser";
+import { ERRORS } from "./errors";
+import { CertV1 } from "./v1/types/cert";
+import { CertificateV1 } from "./v1/types/certificateType";
 
 // suppose we are a certifier
 const generateValidWebCertificate = (): CertificateV1 => {

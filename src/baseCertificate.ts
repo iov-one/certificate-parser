@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
-import ajvInstance from "ajvInstance";
-import { BaseCertificate } from "types/baseCertificate";
+import ajvInstance from "./ajvInstance";
+import { BaseCertificate } from "./types/baseCertificate";
 
 export const baseCertificateSchema: JSONSchemaType<BaseCertificate> = {
   type: "object",
