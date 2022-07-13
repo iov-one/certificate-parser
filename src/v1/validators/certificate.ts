@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
-import ajvInstance from "../../ajvInstance";
-import { CertificateV1 } from "../types/certificateType";
+import ajvInstance from "ajvInstance";
+import { CertificateV1 } from "v1/types/certificateType";
 
 const certificateSchemaV1: JSONSchemaType<CertificateV1> = {
   type: "object",
@@ -10,9 +10,11 @@ const certificateSchemaV1: JSONSchemaType<CertificateV1> = {
       properties: {
         type: {
           type: "string",
+          enum: ["web_service_binding"],
         },
         version: {
           type: "number",
+          enum: [1],
         },
         expire_date: {
           type: "string",
@@ -35,13 +37,31 @@ const certificateSchemaV1: JSONSchemaType<CertificateV1> = {
           },
           required: ["address", "starname"],
         },
+        service: {
+          type: "object",
+          properties: {
+            type: {
+              type: "string",
+              enum: ["web", "twitter", "instagram"],
+            },
+          },
+          required: ["type"],
+          additionalProperties: true,
+        },
         custom: {
           type: "object",
           nullable: true,
         },
       },
       additionalProperties: true,
-      required: ["type", "version", "expire_date", "certifier", "starname"],
+      required: [
+        "type",
+        "version",
+        "expire_date",
+        "certifier",
+        "starname",
+        "service",
+      ],
     },
     signature: {
       type: "string",

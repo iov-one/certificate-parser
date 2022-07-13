@@ -1,6 +1,6 @@
 import { JSONSchemaType } from "ajv";
-import ajvInstance from "./ajvInstance";
-import { BaseCertificate } from "./types/baseCertificate";
+import ajvInstance from "ajvInstance";
+import { BaseCertificate } from "types/baseCertificate";
 
 export const baseCertificateSchema: JSONSchemaType<BaseCertificate> = {
   type: "object",
@@ -10,9 +10,11 @@ export const baseCertificateSchema: JSONSchemaType<BaseCertificate> = {
       properties: {
         type: {
           type: "string",
+          enum: ["web_service_binding"],
         },
         version: {
           type: "number",
+          enum: [1],
         },
         expire_date: {
           type: "string",
