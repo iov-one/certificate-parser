@@ -1,4 +1,4 @@
-import { BaseCert } from "types/baseCert";
+import { BaseCert } from "../../types/baseCert";
 import { CertifierV1 } from "./certifier";
 import { ServiceV1 } from "./service";
 import { StarnameInfoV1 } from "./starnameInfo";
