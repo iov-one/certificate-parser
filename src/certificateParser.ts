@@ -94,14 +94,14 @@ export class CertificateParser {
   }
 
   public getTwitterClaimInfo(): TwitterClaimInfoV1 | null {
-    if (isTwitterService(this.service)) {
+    if (this.getCertificateType() === "web_service_binding" && isTwitterService(this.service)) {
       return this.service;
     }
     return null;
   }
 
   public getWebsiteInfo(): WebsiteInfoV1 | null {
-    if (isWebService(this.service)) {
+    if (this.getCertificateType() === "web_service_binding" && isWebService(this.service)) {
       return this.service;
     }
     return null;
