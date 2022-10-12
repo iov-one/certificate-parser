@@ -5,7 +5,10 @@ import { SupportedCertificateTypes } from "./types/baseCert";
 import { BaseCertificate } from "./types/baseCertificate";
 import { CertificateV1 } from "./v1/types/certificateType";
 import { CertifierV1 } from "./v1/types/certifier";
-import { isInstagramService } from "./v1/types/instagramClaim";
+import {
+  InstagramClaimInfoV1,
+  isInstagramService,
+} from "./v1/types/instagramClaim";
 import { ServiceV1, SupportedServiceTypes } from "./v1/types/service";
 import { StarnameInfoV1 } from "./v1/types/starnameInfo";
 import { isTwitterService, TwitterClaimInfoV1 } from "./v1/types/twitterClaim";
@@ -93,15 +96,35 @@ export class CertificateParser {
     return this.parsedCertificate.cert.starname;
   }
 
+  public getService(): ServiceV1 {
+    return this.service;
+  }
+
   public getTwitterClaimInfo(): TwitterClaimInfoV1 | null {
-    if (this.getCertificateType() === "web_service_binding" && isTwitterService(this.service)) {
+    if (
+      this.getCertificateType() === "web_service_binding" &&
+      isTwitterService(this.service)
+    ) {
+      return this.service;
+    }
+    return null;
+  }
+
+  public getInstagramClaimInfo(): InstagramClaimInfoV1 | null {
+    if (
+      this.getCertificateType() === "web_service_binding" &&
+      isInstagramService(this.service)
+    ) {
       return this.service;
     }
     return null;
   }
 
   public getWebsiteInfo(): WebsiteInfoV1 | null {
-    if (this.getCertificateType() === "web_service_binding" && isWebService(this.service)) {
+    if (
+      this.getCertificateType() === "web_service_binding" &&
+      isWebService(this.service)
+    ) {
       return this.service;
     }
     return null;
