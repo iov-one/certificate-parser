@@ -1,4 +1,4 @@
-# @iov/certificate-parser
+# @iov/certificate-parser [![npm version](https://img.shields.io/npm/v/axios.svg?style=flat-square)](https://www.npmjs.org/package/axios)  
 
 Allows to easily parse and use certificates supported by Starname blockchain.
 
