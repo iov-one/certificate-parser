@@ -11,7 +11,7 @@ const generateValidWebCertificate = (): CertificateV1 => {
   const cert: CertV1 = {
     type: "web_service_binding",
     version: 1,
-    expire_date: "1655875716",
+    expire_date: "1350209023",
     certifier: {
       id: "Example",
       public_key: publicKey.toString("hex"),
@@ -34,6 +34,78 @@ const generateValidWebCertificate = (): CertificateV1 => {
       // look for service type
       type: "web",
       host: "something.com",
+    },
+  };
+  const signature = forge.pki.ed25519.sign({
+    encoding: "utf8",
+    message: JSON.stringify(cert),
+    privateKey,
+  });
+  const certificate = {
+    cert,
+    signature: signature.toString("hex"),
+  };
+  // this is our final certificate
+  return certificate;
+};
+
+const generateValidTwitterCertificate = (): CertificateV1 => {
+  // certifier's private and pub key
+  const { publicKey, privateKey } = forge.pki.ed25519.generateKeyPair();
+  const cert: CertV1 = {
+    type: "web_service_binding",
+    version: 1,
+    expire_date: "1350209023",
+    certifier: {
+      id: "Example",
+      public_key: publicKey.toString("hex"),
+      url: "https://www.example.com/publickey",
+    },
+    custom: null,
+    starname: {
+      address: "starxyz",
+      starname: "*starname",
+    },
+    service: {
+      // look for service type
+      type: "twitter",
+      handle: "test_twitter_handle",
+    },
+  };
+  const signature = forge.pki.ed25519.sign({
+    encoding: "utf8",
+    message: JSON.stringify(cert),
+    privateKey,
+  });
+  const certificate = {
+    cert,
+    signature: signature.toString("hex"),
+  };
+  // this is our final certificate
+  return certificate;
+};
+
+const generateValidInstagramCertificate = (): CertificateV1 => {
+  // certifier's private and pub key
+  const { publicKey, privateKey } = forge.pki.ed25519.generateKeyPair();
+  const cert: CertV1 = {
+    type: "web_service_binding",
+    version: 1,
+    expire_date: "1350209023",
+    certifier: {
+      id: "Example",
+      public_key: publicKey.toString("hex"),
+      url: "https://www.example.com/publickey",
+    },
+    custom: null,
+    starname: {
+      address: "starxyz",
+      starname: "*starname",
+    },
+    service: {
+      // look for service type
+      type: "instagram",
+      handle: "test_instagram_handle",
     },
   };
   const signature = forge.pki.ed25519.sign({
@@ -101,7 +173,7 @@ describe("Certificate parser", () => {
     const parsedCertificate = new CertificateParser(
       JSON.stringify(validWebCertificate)
     );
-    expect(parsedCertificate.getExpireDate().getDate()).toBe(22);
+    expect(parsedCertificate.getExpireDate().getDate()).toBe(14);
   });
 
   it("can check integrity of a certificate", () => {
@@ -176,5 +248,27 @@ describe("Certificate parser", () => {
     expect(
       new CertificateParser(JSON.stringify(modifiedCertificate))
     ).toBeTruthy();
+  });
+
+  it("can get twitter claim info from certificate", () => {
+    const validTwitterCertificate = generateValidTwitterCertificate();
+    const parsed = new CertificateParser(
+      JSON.stringify(validTwitterCertificate)
+    );
+    expect(parsed.getTwitterClaimInfo()).toStrictEqual({
+      type: "twitter",
+      handle: "test_twitter_handle",
+    });
+  });
+
+  it("can get instagram claim info from certificate", () => {
+    const validInstagramCertificate = generateValidInstagramCertificate();
+    const parsed = new CertificateParser(
+      JSON.stringify(validInstagramCertificate)
+    );
+    expect(parsed.getInstagramClaimInfo()).toStrictEqual({
+      type: "instagram",
+      handle: "test_instagram_handle",
+    });
   });
 });
